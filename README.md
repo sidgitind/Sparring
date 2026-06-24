@@ -1,82 +1,121 @@
 # Sparring
 
-**The spec quality layer for AI-assisted development.**
+A library of AI personas that review your spec before your agent builds from it.
 
-Superpower tells your agent *when* to build.  
-Sparring tells your agent *what standard to build to*.
-
-They are orthogonal. They stack.
-
----
-
-## The problem
-
-Process discipline on a bad spec produces well-structured wrong software.
-
-Your agent follows the workflow correctly.  
-It builds exactly what the spec says.  
-The spec was incomplete.  
-The bug surfaces in testing — or in production.
-
-The gap is not in how the agent builds. It is in **what it builds against.**
+Your agent builds exactly what the spec says.  
+If the spec is incomplete, the agent builds something incomplete — correctly.  
+Sparring catches the gaps before the build starts.
 
 ---
 
-## What this library is
+## The problem it solves
 
-Five personas. Each one a constraint enforcer, not a stylistic advisor.
+A competent developer wrote a six-AC spec for a notification preferences feature.  
+It entered the Sparring pipeline and exited with 21 ACs.
+
+The delta contained: unrecoverable error states, missing loading states, no unsubscribe compliance requirement, and no success metric. None of these were careless omissions. They were the gaps a single person cannot hold simultaneously — the PM lens, the architecture lens, the UX lens, the QA lens — while also writing the spec.
+
+Sparring runs those lenses sequentially. Each persona has one job. None of them build anything.
+
+---
+
+## How it works
+
+Five personas. Each enforces one layer of spec quality.
 
 ```
-Amazon PM / Google PM    →   Is the problem correctly defined?
-Google Architect         →   Does this fit the architecture?
-UI Designer              →   Are all user states specified?
-QA Functional            →   Are all paths testable?
-QA Non-Functional        →   Will it survive reality?
+PM (Amazon or Google)  →  Is the problem correctly defined? Is success measurable?
+Architect              →  Does this fit the system? Are contracts with external services defined?
+UI Designer            →  Are all user-facing states specified? What does failure look like?
+QA Functional          →  Is every path testable? Are negative paths covered?
+QA NFQ                 →  Will it survive reality? Timeouts, SLOs, failure visibility.
 ```
 
-A thin spec enters. A contract-grade spec exits.
+Each persona reads your spec. It flags blocking items and conditional items. You resolve blocking items before moving to the next persona. Conditional items are your judgment call.
 
-Every persona has:
-- A fixed cognitive contribution — what this role always asks
-- Non-negotiables — what it blocks on
-- A **bias section** — where it over-indexes, so you stay calibrated
-- A project config block — your stack, your thresholds, your rules
+**The human edits the spec. The persona never does.**
 
-The human edits the spec. The persona never does.
+The sequence is not arbitrary — each persona's output is the next persona's input. Running them out of order degrades the result. The full explanation is in [`/Persona/how_it_works.md`](Persona/how_it_works.md).
 
 ---
 
-## Proof
+## What level does this work at
 
-The worked example runs a realistic Google OAuth login spec through the full pipeline.
+Sparring works at the **feature or epic level** — one spec, one pipeline run.
 
-**Before:** 6 acceptance criteria. No success metric. No error messages. No CSRF protection.  
-**After:** 21 acceptance criteria. Instrumented. Recoverable. Secure.
+This matters because the value the library produces is proportional to the specificity of the spec you give it. A feature spec with acceptance criteria gives every persona something concrete to interrogate. An initiative brief or a product-level vision document does not — the Architect has no module boundaries to check, the QA personas have no paths to verify, the UI Designer has no states to audit. You will get generic output on a generic input.
 
-Every addition is traced to the persona that caught it and the class of bug it prevents.
+The right trigger for running Sparring is the moment a feature spec is written and before it is handed to an agent or an engineer. Not at roadmap planning. Not at initiative kickoff. At the spec.
 
-→ [`/Example/09_DELTA.md`](Example/09_DELTA.md)
+**What Sparring is not:**
+
+- **Not a product strategy tool.** The Amazon PM persona will ask "who is the customer?" — but it cannot tell you whether your answer is correct. It enforces that the answer exists in the spec. Whether the answer is right is upstream of this library entirely. That work belongs in discovery.
+
+- **Not a substitute for a human architecture review.** The Architect persona catches spec-level gaps — missing contracts, undefined failure modes, module boundary violations implied by the spec. It does not replace a technical design review with engineers who know the codebase.
+
+- **Not a one-time pass.** Specs change. If a feature spec changes significantly after a persona has reviewed it, the affected personas should run again. The pipeline is valid against the spec version it reviewed — not against whatever the spec became afterward.
+
+- **Not a tool for reviewing an entire product at once.** The temptation when you first see this library is to point it at everything. One spec, one pipeline run. That is the unit of work.
 
 ---
 
-## Start in 10 minutes
+## Walk through the example first
 
-```bash
-git clone https://github.com/[your-handle]/sparring
+Before you run this on your own spec, read the worked example. It takes ten minutes and shows you exactly what to expect.
+
+**The feature:** Notification preferences — users control which notifications they receive.  
+**The spec entering the pipeline:** [`/Example/Input_Spec.md`](Example/Input_Spec.md) — six ACs, written by a competent PM under normal sprint conditions.  
+**The spec exiting the pipeline:** [`/Example/Final_Spec.md`](Example/Final_Spec.md) — twenty-one ACs.  
+**Every change explained:** [`/Example/Delta_Spec.md`](Example/Delta_Spec.md) — each addition traced to the persona that caught it and the class of production bug it prevents.
+
+The example also includes [`/Example/ProjectConfig/`](Example/ProjectConfig/) — the two files every persona reads before reviewing your spec:
+- `Architecture.md` — your module map, hard boundaries, and external service contracts
+- `Edge_Cases.md` — bugs already discovered on this project, with rules extracted from each
+
+You will create these two files for your own project. The example shows what they contain and why each persona needs them.
+
+---
+
+## Run it on your own spec
+
+**Step 1 — Pick a starter kit**
+
+Three pre-configured persona stacks matched to project type. Each kit specifies which personas to run, in what order, and how to configure the behavior switches.
+
+| Kit | Use when |
+|---|---|
+| [`consumer_app.md`](StarterKit/consumer_app.md) | Mobile-first or web consumer product. This is the kit used in the worked example. |
+| [`saas_b2b.md`](StarterKit/saas_b2b.md) | Multi-role SaaS with paying customers and external integrations. |
+| [`startup_mvp.md`](StarterKit/startup_mvp.md) | Pre-revenue validation build where speed matters more than completeness. |
+
+Not sure which fits, or what to do when two personas disagree? → [`Persona/how_it_works.md`](Persona/how_it_works.md)
+
+**Step 2 — Point personas to your project context**
+
+Each persona reads two files before reviewing your spec. You either link existing files or create them if they don't exist yet.
+
+`Architecture.md` — your module map, tech decisions, and external service contracts (timeouts, failure shapes, state write policy). If your project already has architecture documentation — even spread across multiple files — list all the relevant paths. The persona reads everything you point it to. The worked example at [`/Example/ProjectConfig/Architecture.md`](Example/ProjectConfig/Architecture.md) shows the structure if you're starting from scratch.
+
+`Edge_Cases.md` — bugs already discovered on this project, with the rule extracted from each. If you have existing post-mortems, incident reports, or a known issues list, link those. Starting a new project: create it empty. It grows as the project does.
+
+**Complex projects:** If your architecture lives across multiple files — frontend, backend, API contracts, data model, service-level docs in a monorepo — list all relevant paths in the PROJECT CONFIG block. The persona reviews against whatever context you give it. A persona pointed at one file out of five will miss what's in the other four.
+
+**Step 3 — Fill in the PROJECT CONFIG block**
+
+Each persona file has a PROJECT CONFIG section at the top. Add your product context, stack, and the file paths from Step 2. This takes about five minutes and is what connects the persona to your project — without it, the persona reviews in a vacuum.
+
+**Step 4 — Run the pipeline**
+
+Download the persona files from `/Persona` and add them to your project. Your agent reads each persona file alongside your spec — the persona already knows where to find your `Architecture.md` and `Edge_Cases.md` because you set those paths in Step 3. Work through the pipeline one persona at a time: read the output, resolve blocking items, update the spec, move to the next.
+
+```
+Works with: Claude Code, Cursor, Windsurf, or any agent that reads files.
+No API. No subscription. No dependency.
 ```
 
-1. Pick a starter kit → [`/StarterKit/`](StarterKit/)
-2. Copy the persona files it references into your project
-3. Fill in the `PROJECT CONFIG` block in each persona (~5 min)
-4. Write your spec
-5. Paste persona + spec into your agent. Read the output. Resolve blocking items. Move to next persona.
+> **Browser (Claude.ai)?** Open a new conversation. Drop the persona file in as your first message, then your spec. The persona reads both and reviews. Resolve the blocking items, update your spec, open a new conversation for the next persona.
 
-**Works with:** Claude Code, Cursor, Windsurf, or any agent that reads files.  
-**No API. No subscription. No dependency.**
-
-> **Using Claude.ai in a browser?** Open a new conversation. Paste the entire persona file as your first message. Then paste your spec and send. That is the full workflow.
-
-> **Using Claude Code or Cursor?** Drop the persona file into your project root and reference it in your instruction to the agent.
+> **Existing spec-driven pipeline?** Copy the `/Persona` folder into your project. Add each persona as a review step before the build step. That is the full integration — one folder, one new stage in your pipeline.
 
 ---
 
@@ -85,31 +124,55 @@ git clone https://github.com/[your-handle]/sparring
 ```
 /Persona
   /PM_Persona
-    amazon-pm-working-backwards.md       Customer definition, problem statement, success metrics
-    google-pm-data-driven.md             OKR connection, instrumentation, iteration readiness
+    amazon_pm_working_backwards.md     Customer definition, problem statement, success metrics
+    google_pm_data_driven.md           OKR connection, instrumentation, iteration readiness
+    apple_narrative.md                 Narrative coherence, experience integrity, product story
+    meta_movefast.md                   Speed-to-learning, instrumentation, reversibility
+    enterprise_b2b.md                  Multi-stakeholder definition, compliance surface, buyer logic
   /Architect_Persona
-    google-distributed-architect.md      Module boundaries, external service contracts, blast radius
+    google_distributed_architect.md    Module boundaries, external service contracts, blast radius
   /Designer_Persona
-    ui-designer-interaction-clarity.md   Four States Rule, error messages, design system compliance
+    ui_designer_interaction_clarity.md Four States Rule, error messages, design system compliance
   /QA_Persona
-    qa-functional-path-coverage.md       Binary ACs, negative paths, OAuth security checklist
-    qa-nfq-resilience.md                 Minimum NFQ Contract, SLOs, failure visibility
+    qa_functional_path_coverage.md     Binary ACs, negative paths, edge case coverage
+    qa_nfq_resilience.md               Full non-functional review — SLOs, resilience, failure visibility
+  how_it_works.md                      Pipeline sequence, persona selection, tensions, human gate
 
 /StarterKit
-    consumer-app.md                      Mobile-first / consumer products
-    saas-b2b.md                          Multi-role SaaS with paying customers
-    startup-mvp.md                       Pre-revenue validation builds
-    COMPATIBILITY-MATRIX.md              Persona tensions, sequence rules, override criteria
+  consumer_app.md                      Pre-configured stack for consumer products (used in example)
+  saas_b2b.md                          Pre-configured stack for B2B SaaS
+  startup_mvp.md                       Pre-configured stack for pre-revenue builds
 
 /Example
-    00_input_spec.md                     The thin spec that enters the pipeline
-    08_final_spec.md                     The contract-grade spec that exits
-    09_DELTA.md                          Every change traced to persona + bug class prevented
-    /ProjectConfig                       Example ARCHITECTURE.md, EDGE_CASES.md, CLAUDE.md
+  Input_Spec.md                     The thin spec entering the pipeline
+  Final_Spec.md                     The contract-grade spec exiting the pipeline
+  Delta_Spec.md                          Every change traced to persona and bug class prevented
+  /ProjectConfig
+    Architecture.md                    Example module map, service contracts, hard rules
+    Edge_Cases.md                      Example discovered bugs with extracted rules
 
-PERSONA-TEMPLATE.md                      Base structure — copy to create new personas
-HOW-IT-WORKS.md                          The orthogonal positioning explained in full
+Persona_Template.md                    Base structure — copy to create new personas
 ```
+
+---
+
+## The non-negotiable floor
+
+The QA NFQ persona has a full non-functional review — SLOs, blast radius, resilience, monitoring, token lifecycle, recovery time. All of it is configurable by project scale.
+
+Five things are not configurable. The NFQ persona runs these as a pre-flight check before it reads anything else. If any of the five fail, the spec does not proceed regardless of what else it contains:
+
+```
+1. Every external service call has an explicit timeout — not a language default
+2. Every external service call has a defined failure response shape
+3. No auth state written before external service confirmation
+4. Token expiry boundary behaviour defined on any feature that touches a JWT
+5. Failures are loud — not silent
+```
+
+These five are the minimum that makes a spec buildable. Everything above them scales with your product's maturity. These do not.
+
+An MVP with no SLO commitments is reasonable. An MVP where the agent uses Node's default 120-second HTTP timeout on a Google OAuth call — because the spec said nothing — is not an MVP. It is a blank loading screen waiting to happen.
 
 ---
 
@@ -117,34 +180,13 @@ HOW-IT-WORKS.md                          The orthogonal positioning explained in
 
 Every persona documents where it over-indexes.
 
-A Google Architect will flag distributed systems concerns on a two-person startup feature.  
-An Amazon PM will demand customer narrative on a feature everyone already understands.  
-A QA NFQ persona will find timeout risks in features with no external calls.
+An Amazon PM will demand a customer narrative on a feature the whole team already understands. A Google Architect will flag distributed systems concerns on a feature that serves two hundred users. A QA NFQ persona will surface timeout risks on a feature with no external calls.
 
 This is not a defect. It is the point.
 
-The bias section tells you when to push back. The human gate is not a formality — it is the intelligence layer.
+The bias section tells you when to push back. A spec that passes every persona without a single override is a red flag — it means the personas found nothing to say, which means they were not read carefully enough.
 
-A spec that passes every persona without a single override is a red flag.  
-The value is in the friction. Not in eliminating it.
-
----
-
-## The Minimum NFQ Contract
-
-Regardless of project size, these five things cannot be skipped:
-
-```
-1. Every external service call has an explicit timeout (not language default)
-2. Every external service call has a defined failure response shape
-3. No auth state written before external service confirmation
-4. Token expiry boundary behaviour defined
-5. Failures are loud — not silent
-```
-
-These apply to a 10-user MVP exactly as much as a 10,000-user product.  
-The only thing that scales at MVP stage is the SLO target requirement.  
-The failure hygiene does not.
+The value is in the friction.
 
 ---
 
@@ -155,7 +197,7 @@ Sparring enforces the specification phase.
 
 ```
 Thin spec
-    ↓  Sparring — spec quality layer
+    ↓  Sparring — spec quality gate
 Contract-grade spec
     ↓  Superpower — process layer
 Code that does what was specified
@@ -169,13 +211,9 @@ Superpower without Sparring misses the upstream problem.
 
 ## Contributing
 
-The library is designed to grow. New personas, new starter kits, new worked examples.
+If you run the pipeline on a real feature and catch a class of bug none of the personas flagged — open a PR. Document the gap, the class of problem, and the persona or rule that should catch it next time.
 
-If you run the pipeline on a real feature and catch something new — a class of bug
-none of the personas caught — open a PR. Document the gap, the class of problem,
-and the persona or rule that should catch it next time.
-
-See [`PERSONA-TEMPLATE.md`](PERSONA-TEMPLATE.md) to build a new persona.
+See [`Persona_Template.md`](Persona/Persona_Template.md) to build a new persona.
 
 ---
 
