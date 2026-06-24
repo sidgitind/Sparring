@@ -1,4 +1,4 @@
-# SPEC — Feature: Notification Preferences (v1 — pre-persona review)
+# SPEC — Feature: Notification Preferences (pre-persona review)
 
 > This is the THIN spec — what a mid-level PM writes under normal
 > sprint conditions. It is not careless writing. It is realistic.
