@@ -1,4 +1,4 @@
-# SPEC — Feature: Notification Preferences (v4 — post-full-pipeline review)
+# SPEC — Feature: Notification Preferences (post-full-pipeline review)
 
 > **Example disclaimer:** Flowdesk is a fictional product created for this worked example.
 > Any resemblance to real products is coincidental. The email dispatch service referenced
