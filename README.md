@@ -3,7 +3,7 @@
 A library of AI personas that review your spec before your agent builds from it.
 
 Your agent builds exactly what the spec says.  
-If the spec is incomplete, the agent builds something incomplete - correctly.  
+If the spec is incomplete, the agent builds something incomplete, correctly.  
 Sparring catches the gaps before the build starts.
 
 ---
