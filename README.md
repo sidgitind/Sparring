@@ -68,11 +68,11 @@ Before you run this on your own spec, read the worked example. It takes ten minu
 **The spec exiting the pipeline:** [`/Example/Final_Spec.md`](Example/Final_Spec.md) — twenty-one ACs.  
 **Every change explained:** [`/Example/Delta_Spec.md`](Example/Delta_Spec.md) — each addition traced to the persona that caught it and the class of production bug it prevents.
 
-The example also includes [`/Example/ProjectConfig/`](Example/ProjectConfig/) — the two files every persona reads before reviewing your spec:
-- `Architecture.md` — your module map, hard boundaries, and external service contracts
-- `Edge_Cases.md` — bugs already discovered on this project, with rules extracted from each
+The example also includes [`/Example/ProjectConfig/`](Example/ProjectConfig/) — the two project context files every persona reads before reviewing your spec:
+- `Architecture.md` — the Flowdesk module map, tech decisions, and service contracts. Shows you what a filled-in architecture context looks like.
+- `Edge_Cases.md` — three real bugs from the Flowdesk project, each with the rule extracted. Shows you how past failures inform future spec reviews.
 
-You will create these two files for your own project. The example shows what they contain and why each persona needs them.
+You will create equivalent files for your own project. Step 2 explains how.
 
 ---
 
