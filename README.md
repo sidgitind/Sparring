@@ -185,7 +185,7 @@ Not sure which fits, or what to do when two personas disagree? → [`Persona/how
 
 Each persona reads two files before reviewing your spec. You either link existing files or create them if they don't exist yet.
 
-`Architecture.md` — your module map, tech decisions, and external service contracts (timeouts, failure shapes, state write policy). If your project already has architecture documentation — even spread across multiple files — list all the relevant paths. The persona reads everything you point it to. The worked example at [`/Example/ProjectConfig/Architecture.md`](Example/ProjectConfig/Architecture.md) shows the structure if you're starting from scratch.
+`Architecture.md` — your module map, tech decisions, and external service contracts (timeouts, failure shapes, state write policy).If you already have architecture docs in your project or a separate repo, you don't need to recreate them. Clone that repo locally and point the PROJECT CONFIG block at the file path. If the docs are spread across multiple files — list all the relevant paths. Sparring reads whatever path you give it — it has no preference for where the file lives. The persona reads everything you point it to.  The worked example at [`/Example/ProjectConfig/Architecture.md`](Example/ProjectConfig/Architecture.md) shows the structure if you're starting from scratch.
 
 `Edge_Cases.md` — bugs already discovered on this project, with the rule extracted from each. If you have existing post-mortems, incident reports, or a known issues list, link those. Starting a new project: create it empty. It grows as the project does.
 
