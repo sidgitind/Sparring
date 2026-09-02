@@ -5,6 +5,80 @@
 
 ---
 
+## Two Ways to Use Sparring
+
+### Journey 1 — On-Demand (Spec Drafting)
+
+Use while you are writing or refining a spec. Invoke any single persona on any specific decision at any time. Works in CLI, IDE, or chat — no file setup required.
+
+How to invoke:
+```
+"Review [this decision / this section / this change] as the
+[Architect / UI Designer / QA Functional / etc.] persona.
+Journey: On-Demand."
+```
+
+What happens:
+- Persona scans the conversation for prior Sparring output automatically
+- States what it found before reviewing — correct it if wrong
+- Derives project context from conversation if no config files present
+- Output labelled: Journey: On-Demand — Directional
+- No SPARRING_FINDINGS.md created or required
+- Cross-reference convention activates only if prior Sparring output exists in the conversation
+
+What it is not:
+- Not a formal gate. Not a blocking verdict.
+- Directional thinking support — not a sign-off before build.
+
+---
+
+### Journey 2 — Full Pipeline (Pre-Release Gate)
+
+Use when your spec is considered complete and ready for agent handoff. Run all personas sequentially. Each persona reads prior findings. SPARRING_FINDINGS.md accumulates. Cross-reference convention activates fully. Output is a formal gate — blocking items must be resolved before build.
+
+How to invoke:
+Run personas in the recommended sequence:
+PM persona(s) → Architect → UI Designer → QA Functional → QA NFQ → @Synthesis
+
+Order is a recommendation, not a lock. If you run out of order, the persona will note missing prior findings and proceed. The cross-reference convention activates on whatever prior findings exist.
+
+What it is not:
+- Not recommended in chat mode without file system access.
+  SPARRING_FINDINGS.md cannot persist between chat sessions automatically.
+  Use CLI or IDE for full pipeline runs.
+
+---
+
+### Output Mode — Independent of Journey
+
+Journey and output mode are two separate decisions. They do not affect each other.
+
+```
+JOURNEY controls formality:
+  On-Demand    = thinking support while drafting, no formal gate
+  Full Pipeline = blocking verdict before build
+
+OUTPUT MODE controls depth:
+  Summary  = top blockers, fast signal (default in both journeys)
+  Detailed = full structured review, full audit trail
+```
+
+All four combinations are valid:
+```
+On-Demand + Summary    → quick challenge mid-draft, fast output
+On-Demand + Detailed   → deep dive on one decision mid-draft
+Full Pipeline + Summary  → fast signal across all lenses before build
+Full Pipeline + Detailed → full audit trail before stakeholder handoff
+```
+
+Override at invocation:
+```
+"Run @Architect on this spec. Journey: Full Pipeline. Output: detailed."
+"Review this decision as @UIDesigner. Journey: On-Demand. Output: detailed."
+```
+
+---
+
 ## The Pipeline
 
 Sparring runs five personas in sequence. Each persona has one cognitive job.
