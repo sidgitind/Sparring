@@ -17,6 +17,9 @@ The delta contained: no accountability model for decisions made on AI output, no
 
 Sparring runs those lenses sequentially. Each persona has one job. None of them build anything.
 
+<img width="1800" height="1440" alt="sparring_pipeline" src="https://github.com/user-attachments/assets/0aca91b2-375c-48e8-b07a-8722879ed3d3" />
+
+
 ---
 
 ## How it works
@@ -37,6 +40,64 @@ Each persona reads your spec. It flags blocking items and conditional items. You
 **The human edits the spec. The persona never does.**
 
 The sequence is not arbitrary — each persona's output is the next persona's input. Running them out of order degrades the result. The full explanation is in [`/Persona/how_it_works.md`](Persona/how_it_works.md).
+
+---
+
+## Two ways to use Sparring
+
+### Journey 1 — On-Demand (while drafting)
+
+Invoke any single persona on any specific decision while you are writing or refining a spec. Works in CLI, IDE, or chat. No file setup required. No pipeline to run.
+
+Use this when:
+- You are mid-draft and want one lens on a decision you are about to make
+- You want a quick challenge on a UI change, an architectural assumption, or a scope boundary — before the spec is complete
+- You are working in chat (Gemini, Claude.ai, or any chat interface) and want a persona to interrogate a specific section
+
+What the persona does:
+- Scans the conversation for any prior Sparring output automatically — no copy-paste required
+- States what it found before reviewing — correct it if wrong
+- Derives project context from the conversation if no config files exist
+- Labels output: **Journey: On-Demand — Directional**
+
+What it is not:
+- Not a formal gate. Not a blocking verdict.
+- Thinking support while you draft — not a sign-off before build.
+- Does not create or require SPARRING_FINDINGS.md
+
+---
+
+### Journey 2 — Full Pipeline (before build)
+
+Run all personas sequentially on a complete spec before handing it to an agent. Each persona reads prior findings. SPARRING_FINDINGS.md accumulates. Cross-reference convention activates fully.
+
+Use this when:
+- Your spec is considered complete and you are ready to hand it to an agent
+- You want a formal multi-lens review with a blocking verdict
+- You need an audit trail — for a design review, stakeholder handoff, or your own confidence before build
+
+What the persona does:
+- Reads SPARRING_FINDINGS.md from prior runs
+- Produces a formal FINDINGS PAYLOAD
+- Cross-references findings from other personas by relationship type
+- Labels output: **Journey: Full Pipeline — Formal Gate**
+
+What it is not:
+- Not recommended in chat mode — SPARRING_FINDINGS.md cannot persist between chat sessions automatically. Use CLI or IDE for full pipeline runs.
+
+---
+
+| | Journey 1 — On-Demand | Journey 2 — Full Pipeline |
+|---|---|---|
+| When | While drafting | Spec complete, before build |
+| Personas | Any single persona | All personas, sequentially |
+| Setup required | None | PROJECT CONFIG + context files |
+| Prior findings | Scanned from conversation automatically | Read from SPARRING_FINDINGS.md |
+| Output type | Directional — thinking support | Formal gate — blocking verdict |
+| Output mode | Summary (default) or Detailed — your choice | Summary (default) or Detailed — your choice |
+| SPARRING_FINDINGS.md | Not required | Required across sessions |
+| Works in chat | Yes | Not recommended |
+| Works in CLI / IDE | Yes | Yes |
 
 ---
 
@@ -90,30 +151,43 @@ Example invocation: "@Synthesis — produce the SPARRING BRIEF from today's pipe
 
 ## Running a single persona
 
-You do not have to run the full pipeline. You can invoke any single persona by name.
+You do not have to run the full pipeline. Invoke any single persona by name at any time — either as part of Journey 1 (On-Demand, while drafting) or as a targeted pass within Journey 2 (Full Pipeline).
 
 ```
-Example: "Run @QAFunctional only on this spec."
-Example: "Run @GoogleArch only on this spec."
-Example: "Run @UIDesigner only in detailed mode on this spec."
+On-Demand, summary (default):
+"Review this UI change as @UIDesigner. Journey: On-Demand."
+
+On-Demand, detailed:
+"Review this UI change as @UIDesigner. Journey: On-Demand. Output: detailed."
+
+Full Pipeline, summary (default):
+"Run @AmazonPM on this spec. Journey: Full Pipeline."
+
+Full Pipeline, detailed:
+"Run @AmazonPM on this spec. Journey: Full Pipeline. Output: detailed."
 ```
 
 **When to run a single persona**
 
-- You already know which layer is weak. The spec has been through PM review — you want the Architect to look at it specifically.
-- You want a focused answer fast. Running all five personas on a draft spec produces a long output on a moving target. One persona on a near-final spec produces an actionable gap list.
-- You want to use one persona's output as input for the next. When a single persona runs, its findings are saved as a `SPARRING_FINDINGS.md` snippet (see below). The next persona you run reads that file before reviewing your spec, so it builds on prior findings rather than duplicating them.
+- You are mid-draft and want one lens on a specific decision (Journey 1)
+- You already know which layer is weak and want a targeted review (Journey 2)
+- You want a focused answer fast — one persona on a near-final spec produces an actionable gap list without the full pipeline overhead
+- You want to chain personas one at a time across sessions — each persona reads SPARRING_FINDINGS.md from the prior run (Journey 2)
+
+**In Journey 1 (On-Demand):** The persona scans the conversation for prior Sparring output automatically. No copy-paste required. State your assumed context in the invocation if no config files exist — the persona will confirm what it understood before reviewing.
+
+**In Journey 2 (Full Pipeline):** When a single persona runs, its findings are saved as a FINDINGS PAYLOAD block. Copy this into SPARRING_FINDINGS.md. The next persona reads that file before reviewing — building on prior findings rather than duplicating them.
 
 **The trade-off**
 
 | | Full pipeline | Single persona |
 |---|---|---|
 | Coverage | All five lenses in one pass | One lens only |
-| Output | Three-tier SPARRING BRIEF via @Synthesis | Human-readable review + findings payload |
-| Cross-persona carry-over | Handled internally in the same session | Handled via `SPARRING_FINDINGS.md` across sessions |
-| Best for | Well-formed spec approaching build | Targeted review or iterative pass |
+| Output | Three-tier SPARRING BRIEF via @Synthesis | Review + findings payload |
+| Cross-persona carry-over | Handled internally in one session | Via SPARRING_FINDINGS.md across sessions |
+| Best for | Complete spec approaching build | Targeted review or iterative drafting |
 
-**Run order still matters even when running one at a time.** The recommended sequence is PM → Architect → UI Designer → QA Functional → QA NFQ → @Synthesis. If you run QA Functional before the Architect has reviewed the spec, QA will surface gaps the Architect would have caught — and you may resolve them at the wrong layer. The sequence is a recommendation, not a lock. Use your judgment.
+**Run order still matters when chaining.** The recommended sequence is PM → Architect → UI Designer → QA Functional → QA NFQ → @Synthesis. Running out of order is allowed — the persona will note missing prior findings and proceed. Use your judgment.
 
 ---
 
@@ -269,7 +343,11 @@ Works with: Claude Code, Cursor, Windsurf, or any agent that reads files.
 No API. No subscription. No dependency.
 ```
 
-> **Browser (Claude.ai)?** Open a new conversation. Drop the persona file in as your first message, then your spec. The persona reads both and reviews. Resolve the blocking items, update your spec, open a new conversation for the next persona. After the final persona, run @Synthesis in the same or a new conversation with all prior findings.
+> **Browser or chat interface (Claude.ai, Gemini, or any chat)?** Two options depending on your goal:
+>
+> **Journey 1 (On-Demand):** Start your spec drafting conversation normally. When you want a persona to review a specific decision, invoke it by name with "Journey: On-Demand." The persona scans the conversation for prior Sparring output automatically. No file setup required.
+>
+> **Journey 2 (Full Pipeline):** Open a new conversation. Drop the persona file in as your first message, then your spec. The persona reads both and reviews. Resolve blocking items, update your spec, open a new conversation for the next persona — paste the FINDINGS PAYLOAD from the prior run into context before invoking the next one. After the final persona, run @Synthesis with all prior findings.
 
 > **Existing spec-driven pipeline?** Copy the `/Persona` folder into your project. Add each persona as a review step before the build step. Add @Synthesis as the final review step. That is the full integration — one folder, one new stage in your pipeline.
 
@@ -352,22 +430,130 @@ The value is in the friction.
 
 ---
 
-## Relationship to Superpower
+## Use with Superpower
 
-[Superpower](https://github.com/SuperpowerCorp/superpower) enforces the coding phase.  
-Sparring enforces the specification phase.
+[Superpower](https://github.com/SuperpowerCorp/superpower) enforces the coding phase.
+Sparring enforces the specification phase. They are orthogonal. They stack.
 
 ```
 Thin spec
-    ↓  Sparring — spec quality gate
+    ↓  Sparring — spec quality gate (what to build)
 Contract-grade spec
-    ↓  Superpower — process layer
+    ↓  Superpower — process layer (how to build it)
 Code that does what was specified
 ```
 
-Use Sparring before Superpower.  
-Sparring without Superpower still works.  
+**Where Sparring fits in the Superpower pipeline:**
+
+Superpower's workflow: `/brainstorming` → `/writing-plans` → TDD → subagent execution → code review.
+
+Sparring inserts between `/brainstorming` and `/writing-plans`. The brainstorming skill produces a rough design. Sparring interrogates it. Writing-plans receives a hardened spec.
+
+```
+/brainstorming     → rough design or requirements
+    ↓  Sparring    → five personas, human resolves blocking items
+Hardened spec
+    ↓
+/writing-plans     → implementation tasks
+    ↓
+TDD + subagents + code review
+```
+
+**What to do:**
+
+1. Run `/brainstorming` as normal. It produces a design or requirements doc.
+2. Before `/writing-plans`, run the Sparring pipeline on the output.
+   — Paste the Sparring persona files into your session, or use Journey 1 (On-Demand) for a fast targeted review.
+   — Resolve blocking items. Update the spec.
+3. Run `/writing-plans` on the hardened spec.
+4. Continue with the rest of the Superpower pipeline unchanged.
+
+SPARRING_CONTEXT.md and SPARRING_FINDINGS.md work normally — they sit in your project root and are read by personas regardless of whether you are using Superpower.
+
+**Using OpenSpec + Superpower + Sparring together:**
+
+If you use the `superpowers-bridge` schema in OpenSpec, Sparring inserts naturally between `design` and `tasks` inside the same `/opsx:continue` flow. See the OpenSpec section below.
+
+Sparring without Superpower still works.
 Superpower without Sparring misses the upstream problem.
+
+---
+
+## Use with OpenSpec
+
+[OpenSpec](https://github.com/Fission-AI/OpenSpec) manages your spec artifacts and workflow.
+Sparring stress-tests the spec before tasks are written.
+
+Sparring ships an OpenSpec community schema that inserts five persona review artifacts
+between `design` and `tasks`. Each persona is a named step — skippable, resumable,
+part of the change record.
+
+```
+proposal → specs → design
+  → sparring_pm → sparring_architect → sparring_ui
+  → sparring_qa_functional → sparring_qa_nfq
+  → tasks → apply
+```
+
+**Quick install:**
+
+```bash
+git clone https://github.com/sidgitind/Sparring /tmp/sparring
+cp -r /tmp/sparring/openspec-schema/openspec/schemas/sparring       openspec/schemas/sparring
+openspec schema validate sparring
+```
+
+Then add to `openspec/config.yaml`:
+```yaml
+schema: sparring
+sparring_library_path: /tmp/sparring
+```
+
+Full install guide: [`/openspec-schema/README.md`](openspec-schema/README.md)
+
+**How `/opsx:continue` works with Sparring:**
+
+No new command. Each persona appears as the next artifact in the chain.
+`/opsx:continue` pauses after each one. Human resolves blocking items. Continue.
+`tasks` is blocked until all personas pass or are explicitly skipped.
+
+**Skipping a persona in OpenSpec:**
+
+```bash
+# Skip UI Designer for a backend-only feature
+echo "SKIPPED: no user-facing states"   > openspec/changes/my-feature/sparring_ui.md
+```
+
+The skip is documented in the change folder. `tasks` notes which personas were skipped.
+
+**SPARRING_CONTEXT.md in OpenSpec:**
+
+Create `SPARRING_CONTEXT.md` in your project root before your first pipeline run.
+Each persona artifact instruction reads it automatically via the `sparring_library_path`.
+The `◎ AMBIENT?` findings from your first run tell you exactly what to add to it.
+
+**@Synthesis in OpenSpec:**
+
+The schema includes a `sparring_brief` artifact between `sparring_qa_nfq` and `tasks`.
+It loads `SPARRING_SYNTHESIS.md` and reads all five persona output files,
+then produces `sparring_brief.md` — the three-tier SPARRING BRIEF in the change folder.
+`tasks` requires it. The full audit trail is in the change folder alongside the spec.
+
+**Already using superpowers-bridge?**
+
+Sparring inserts before `tasks`. Superpower runs after. Combined chain:
+
+```
+proposal → specs → design
+  → sparring_pm → sparring_architect → sparring_ui
+  → sparring_qa_functional → sparring_qa_nfq → sparring_brief
+  → tasks
+  → [Superpower: writing-plans → TDD → code review]
+  → retrospective
+```
+
+Works alongside [superpowers-bridge](https://github.com/JiangWay/openspec-schemas).
+See [`/openspec-schema/README.md`](openspec-schema/README.md) for combined install instructions.
 
 ---
 
