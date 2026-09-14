@@ -467,44 +467,30 @@ Sparring without Superpower still works.
 Superpower without Sparring misses the upstream problem.
 
 ---
+## Use with OpenSpec
 
-Use with OpenSpec
+If you use [OpenSpec](https://github.com/Fission-AI/OpenSpec) for spec-driven development, Sparring ships a schema that inserts five separate persona artifacts — plus a synthesis step — between `design` and `tasks`:
 
-If you use OpenSpec for spec-driven development, Sparring ships a schema that inserts five separate persona artifacts — plus a synthesis step — between design and tasks. Each persona is its own artifact, not one combined gate:
-
+```
 design → sparring_pm → sparring_architect → sparring_ui
        → sparring_qa_functional → sparring_qa_nfq → sparring_brief → tasks → apply
+```
 
-Each artifact writes its own findings file. /opsx:continue advances one persona at a time — you read the findings, resolve blocking items in the spec, and continue. tasks will not generate until every persona has either passed or been explicitly skipped.
+Each persona is its own artifact with its own findings file. `/opsx:continue` advances one
+persona at a time — no new command, and any persona can be explicitly skipped for features
+where it doesn't apply.
 
-Install:
+Two things worth knowing before you install: the agent can preemptively satisfy several
+non-negotiables while writing `design.md`, before any persona runs — a second mode of value,
+not a shortcut around the review. And if you run a Superpower skill like `/brainstorm` in a
+Sparring-enabled project, make sure your Sparring clone is current — an older clone without
+`CLAUDE.md` can cause the agent to misread the library as the thing you're building.
 
-bash
-git clone https://github.com/sidgitind/Sparring /tmp/sparring
-cp -r /tmp/sparring/openspec-schema/openspec/schemas/sparring \
-      openspec/schemas/sparring
-openspec schema validate sparring
+Full install, the generation-mode explanation, the skip mechanism, and proof from a live run:
+[`/openspec-schema`](openspec-schema/README.md)
 
-Windows:
-
-cmd
-git clone https://github.com/sidgitind/Sparring C:\temp\sparring
-xcopy /E /I C:\temp\sparring\openspec-schema\openspec\schemas\sparring\* ^
-      openspec\schemas\sparring\
-
-Then open openspec/config.yaml. openspec init already writes a schema: line — replace it, do not add a second one, or OpenSpec silently falls back to spec-driven and none of this runs:
-
-yaml
-schema: sparring
-sparring_library_path: /absolute/path/to/Sparring
-
-Skipping a persona: drop a file into the change folder before continuing — echo "SKIPPED: no user-facing states in this feature" > sparring_ui.md — and /opsx:continue treats that persona as cleared. Useful for a backend-only feature that has no UI Designer surface, or a QA NFQ pass you've deliberately deferred.
-
-One thing to know before your first run: if the Sparring library is visible to your agent (via sparring_library_path), the agent will often read the persona files during design.md generation and preemptively satisfy several non-negotiables — explicit timeouts, state machines, concurrency handling — before any persona actually runs. This is a second mode of value, not a bug. It does not replace the review; it changes what the review still finds. Full explanation, including why the pipeline still catches real gaps even when the agent has read the criteria in advance: Persona/how_it_works.md.
-
-Also worth knowing: if you run a Superpower skill like /brainstorm in a project where sparring_library_path points at the full Sparring repo, the agent may read the library's own README and treat it as the thing you're building, rather than your actual feature. Sparring ships a CLAUDE.md at its repo root specifically to prevent this — make sure your clone is current if you hit this.
-
-Works alongside superpowers-bridge: Sparring gates the spec, Superpowers executes the build. Use both for the full spec-to-code pipeline.
+Works alongside [superpowers-bridge](https://github.com/JiangWay/openspec-schemas): Sparring
+gates the spec, Superpowers executes the build. Use both for the full spec-to-code pipeline.
 ---
 
 # Part 2 — Walkthrough: What Happened When We Ran It
