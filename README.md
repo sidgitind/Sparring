@@ -12,8 +12,6 @@ Sparring catches the gaps before the build starts.
 
 What Sparring is, how it works, what it is not, and how to run it on your own spec.
 
----
-
 ## The problem it solves
 
 The spec is the product manager's artifact. And product management is not a universal discipline. It is shaped by company culture, by what the organization measures, by the specific product being built, and by the individual PM's experience and blind spots. Two PMs writing a spec for the same feature will produce different documents — not because one is wrong, but because each brings a different set of lenses and leaves different gaps.
