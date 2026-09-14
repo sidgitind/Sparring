@@ -8,8 +8,6 @@ Sparring catches the gaps before the build starts.
 
 ---
 
----
-
 # Part 1 — The Library
 
 What Sparring is, how it works, what it is not, and how to run it on your own spec.
@@ -28,7 +26,7 @@ In a non-AI world, an architect building the high level design based on the spec
 
 An AI agent does not do this. It builds what the spec says.
 
-An agent does not hesitate. It reads "generates a summary" and it generates a summary — confidently,
+It reads "generates a summary" and it generates a summary — confidently,
 completely, and exactly as specified, including everything the spec forgot to specify. No pause at
 the ambiguous line. No comment asking what happens if the service times out. The gap that a human
 might have stumbled on gets built, tested against its own flawed premise, and shipped — faster than
@@ -41,6 +39,7 @@ Each lens has one job and non-negotiables it will not pass regardless of what el
 The human resolves what gets flagged. The agent does not touch the spec. Nothing gets built until
 the gate clears.
 
+<img width="1800" height="1440" alt="sparring_pipeline" src="https://github.com/user-attachments/assets/98466eb4-bdcc-4f2d-90b4-5a83a514260f" />
 
 ---
 
@@ -217,8 +216,6 @@ Full Pipeline, detailed:
 
 ---
 
----
-
 ## SPARRING_FINDINGS.md — saving output between runs
 
 When you run a single persona, the output includes a `FINDINGS PAYLOAD` block at the end of the review. Copy this block into a file called `SPARRING_FINDINGS.md` in your project root.
@@ -234,8 +231,6 @@ The next persona you invoke will read this file before reviewing your spec. It u
 - Flagged assumptions
 
 **If you run the full pipeline in a single session**, findings carry over internally — you do not need `SPARRING_FINDINGS.md`. The file is only needed when runs happen across separate sessions or separate conversations.
-
----
 
 ---
 
@@ -277,8 +272,6 @@ The library improves with use. Populate `SPARRING_CONTEXT.md` after every first 
 
 ---
 
----
-
 ## Output header — date, spec identifier, and traceability
 
 Every persona output begins with a standard header:
@@ -299,8 +292,6 @@ There is no enforced format. The onus is on you to use an identifier that will m
 
 ---
 
----
-
 ## What level does this work at
 
 Sparring works at the **feature or epic level** — one spec, one pipeline run.
@@ -318,8 +309,6 @@ The right trigger for running Sparring is the moment a feature spec is written a
 - **Not a one-time pass.** Specs change. If a feature spec changes significantly after a persona has reviewed it, the affected personas should run again. The pipeline is valid against the spec version it reviewed — not against whatever the spec became afterward.
 
 - **Not a tool for reviewing an entire product at once.** The temptation when you first see this library is to point it at everything. One spec, one pipeline run. That is the unit of work.
-
----
 
 ---
 
@@ -369,8 +358,6 @@ No API. No subscription. No dependency.
 > **Journey 2 (Full Pipeline):** Open a new conversation. Drop the persona file in as your first message, then your spec. The persona reads both and reviews. Resolve blocking items, update your spec, open a new conversation for the next persona — paste the FINDINGS PAYLOAD from the prior run into context before invoking the next one. After the final persona, run @Synthesis with all prior findings.
 
 > **Existing spec-driven pipeline?** Copy the `/Persona` folder into your project. Add each persona as a review step before the build step. Add @Synthesis as the final review step. That is the full integration — one folder, one new stage in your pipeline.
-
----
 
 ---
 
@@ -425,8 +412,6 @@ Persona_Template.md                    Base structure — copy to create new per
 
 ---
 
----
-
 ## The non-negotiable floor
 
 The QA NFQ persona has a full non-functional review — SLOs, blast radius, resilience, monitoring, token lifecycle, recovery time. All of it is configurable by project scale.
@@ -444,8 +429,6 @@ Five things are not configurable. The NFQ persona runs these as a pre-flight che
 These five are the minimum that makes a spec buildable. Everything above them scales with your product's maturity. These do not.
 
 An MVP with no SLO commitments is reasonable. An MVP where the agent uses Node's default 120-second HTTP timeout on a Google OAuth call — because the spec said nothing — is not an MVP. It is a blank loading screen waiting to happen.
-
----
 
 ---
 
@@ -468,8 +451,6 @@ spec was good enough to generate them from.
 
 ---
 
----
-
 ## Relationship to Superpower
 
 [Superpower](https://github.com/SuperpowerCorp/superpower) enforces the coding phase.
@@ -486,8 +467,6 @@ Code that does what was specified
 Use Sparring before Superpower.
 Sparring without Superpower still works.
 Superpower without Sparring misses the upstream problem.
-
----
 
 ---
 
@@ -511,8 +490,6 @@ sparring_library_path: /absolute/path/to/Sparring
 ```
 
 Works alongside [superpowers-bridge](https://github.com/JiangWay/openspec-schemas): Sparring gates the spec, Superpowers executes the build. Use both for the full spec-to-code pipeline.
-
----
 
 ---
 
@@ -587,9 +564,6 @@ The example also includes [`/Example/ProjectConfig/`](Example/ProjectConfig/) �
 - `Architecture.md` — the Flowdesk module map, tech decisions, and service contracts.
 - `Edge_Cases.md` — three real bugs from the Flowdesk project, each with the rule extracted.
 
-Note: the Flowdesk example reflects the pre-v1.2 output format — persona reviews only, no SPARRING BRIEF. The three-tier output and SPARRING_CONTEXT.md were introduced in v1.2. The example remains valid as a demonstration of the persona review layer. A v1.2 example showing the full pipeline including @Synthesis is in progress.
-
----
 
 ---
 
