@@ -8,16 +8,38 @@ Sparring catches the gaps before the build starts.
 
 ---
 
+---
+
+# Part 1 — The Library
+
+What Sparring is, how it works, what it is not, and how to run it on your own spec.
+
+---
+
 ## The problem it solves
 
-A competent PM wrote a four-AC spec for an AI ticket summary feature in Flowdesk, a B2B workflow tool.  
-It entered the Sparring pipeline and exited with 15 ACs across 11 sections.
+The spec is the product manager's artifact. And product management is not a universal discipline. It is shaped by company culture, by what the organization measures, by the specific product being built, and by the individual PM's experience and blind spots. Two PMs writing a spec for the same feature will produce different documents — not because one is wrong, but because each brings a different set of lenses and leaves different gaps.
 
-The delta contained: no accountability model for decisions made on AI output, no counter-metric to detect silent trust erosion, a missing service contract on the summarization call, unhandled UI states, and a false-confidence completeness signal that sounded rigorous but measured the wrong thing. None of these were careless omissions. They were the gaps a single person cannot hold simultaneously — the PM lens, the architecture lens, the UX lens, the QA lens — while also writing the spec.
+This is where spec-level hallucination lives - unknown assumptions not missing facts, unasked questions not wrong answers.
 
-Sparring runs those lenses sequentially. Each persona has one job. None of them build anything.
+The Sparring library is built to surface them.
 
-<img width="1800" height="1440" alt="sparring_pipeline" src="https://github.com/user-attachments/assets/0aca91b2-375c-48e8-b07a-8722879ed3d3" />
+In a non-AI world, an architect building the high level design based on the spec might catch the unsaid assumptions. An expert reviewing the spec to build the Low level design flags might flag the missing Non functional asks. A human developer will sometimes catch a spec gap during mid-implementation, the act of writing code makes the missing piece visible. They flag it and spec if fixed.
+
+An AI agent does not do this. It builds what the spec says.
+
+An agent does not hesitate. It reads "generates a summary" and it generates a summary — confidently,
+completely, and exactly as specified, including everything the spec forgot to specify. No pause at
+the ambiguous line. No comment asking what happens if the service times out. The gap that a human
+might have stumbled on gets built, tested against its own flawed premise, and shipped — faster than
+before, with less visible struggle along the way. The spec's blind spots don't get caught later.
+They get executed more efficiently.
+
+This is what Sparring interrogates before any of that happens: five review lenses, run sequentially,
+against the spec and the design, before a task list is generated and before an agent starts building.
+Each lens has one job and non-negotiables it will not pass regardless of what else looks fine.
+The human resolves what gets flagged. The agent does not touch the spec. Nothing gets built until
+the gate clears.
 
 
 ---
@@ -101,6 +123,8 @@ What it is not:
 
 ---
 
+---
+
 ## Output modes
 
 Every persona supports two output modes. Set this in the PROJECT CONFIG block inside each persona file, or state it explicitly when you invoke the persona.
@@ -149,6 +173,8 @@ Example invocation: "@Synthesis — produce the SPARRING BRIEF from today's pipe
 
 ---
 
+---
+
 ## Running a single persona
 
 You do not have to run the full pipeline. Invoke any single persona by name at any time — either as part of Journey 1 (On-Demand, while drafting) or as a targeted pass within Journey 2 (Full Pipeline).
@@ -191,6 +217,8 @@ Full Pipeline, detailed:
 
 ---
 
+---
+
 ## SPARRING_FINDINGS.md — saving output between runs
 
 When you run a single persona, the output includes a `FINDINGS PAYLOAD` block at the end of the review. Copy this block into a file called `SPARRING_FINDINGS.md` in your project root.
@@ -206,6 +234,8 @@ The next persona you invoke will read this file before reviewing your spec. It u
 - Flagged assumptions
 
 **If you run the full pipeline in a single session**, findings carry over internally — you do not need `SPARRING_FINDINGS.md`. The file is only needed when runs happen across separate sessions or separate conversations.
+
+---
 
 ---
 
@@ -247,6 +277,8 @@ The library improves with use. Populate `SPARRING_CONTEXT.md` after every first 
 
 ---
 
+---
+
 ## Output header — date, spec identifier, and traceability
 
 Every persona output begins with a standard header:
@@ -264,6 +296,8 @@ Mode:     summary | detailed
 **Spec identifier** — use something that uniquely identifies this spec and stays stable across runs. A Jira ticket key, a story ID, a short canonical name — whatever your team uses. The identifier links the findings payload to the spec it reviewed. If you run Sparring on the same spec twice (after a significant revision), the identifier plus date gives you a clear before/after trail.
 
 There is no enforced format. The onus is on you to use an identifier that will make sense to you in three months when you are looking at a `SPARRING_FINDINGS.md` with four entries in it.
+
+---
 
 ---
 
@@ -286,21 +320,6 @@ The right trigger for running Sparring is the moment a feature spec is written a
 - **Not a tool for reviewing an entire product at once.** The temptation when you first see this library is to point it at everything. One spec, one pipeline run. That is the unit of work.
 
 ---
-
-## Walk through the example first
-
-Before you run this on your own spec, read the worked example. It takes ten minutes and shows you exactly what to expect.
-
-**The feature:** AI ticket summary — support engineers get an AI-generated summary at the top of every ticket to reduce time-to-first-action. A real AI feature, under real delivery pressure, with second-order gaps that no single person would catch alone.  
-**The spec entering the pipeline:** [`/Example/Input_Spec.md`](Example/Input_Spec.md) — four ACs, written by a competent PM under normal sprint conditions.  
-**The spec exiting the pipeline:** [`/Example/Final_Spec.md`](Example/Final_Spec.md) — fifteen ACs across eleven sections.  
-**Every change explained:** [`/Example/Delta_Spec.md`](Example/Delta_Spec.md) — each addition traced to the persona that caught it, the class of production problem it prevents, and a cross-reference map showing where multiple personas touched the same mechanism from different angles.
-
-The example also includes [`/Example/ProjectConfig/`](Example/ProjectConfig/) — the project context files every persona reads before reviewing your spec:
-- `Architecture.md` — the Flowdesk module map, tech decisions, and service contracts.
-- `Edge_Cases.md` — three real bugs from the Flowdesk project, each with the rule extracted.
-
-Note: the Flowdesk example reflects the pre-v1.2 output format — persona reviews only, no SPARRING BRIEF. The three-tier output and SPARRING_CONTEXT.md were introduced in v1.2. The example remains valid as a demonstration of the persona review layer. A v1.2 example showing the full pipeline including @Synthesis is in progress.
 
 ---
 
@@ -353,6 +372,8 @@ No API. No subscription. No dependency.
 
 ---
 
+---
+
 ## What's in the library
 
 ```
@@ -374,18 +395,26 @@ No API. No subscription. No dependency.
   how_it_works.md                      Pipeline sequence, persona selection, tensions, human gate
 
 /StarterKit
-  consumer_app.md                      Pre-configured stack for consumer products (used in example)
-  saas_b2b.md                          Pre-configured stack for B2B SaaS
+  consumer_app.md                      Pre-configured stack for consumer products
+  saas_b2b.md                          Pre-configured stack for B2B SaaS (used in example)
   startup_mvp.md                       Pre-configured stack for pre-revenue builds
 
 /Example
-  Input_Spec.md                        The thin spec entering the pipeline
-  Final_Spec.md                        The contract-grade spec exiting the pipeline
-  Delta_Spec.md                        Every change traced to persona, bug class prevented,
-                                       and cross-reference map of findings that touch the
-                                       same mechanism from different angles
+  Input_Spec.md                        The thin 4-AC spec entering the pipeline
+  /sparring-test                       The live OpenSpec + Sparring pipeline run
+    /openspec/changes/ai-ticket-summary/
+      /specs
+        ai-ticket-summary.md           The resolved spec after all 14 blocking items
+      design.md                        Technical design — architecture context for personas
+      sparring_pm.md                   PM persona findings — 2 blocks, 3 conditionals
+      sparring_architect.md            Architect findings — 3 blocks, 2 conditionals
+      sparring_ui.md                   UI Designer findings — 3 blocks, 4 conditionals
+      sparring_qa_functional.md        QA Functional findings — 4 blocks, 5 conditionals
+      sparring_qa_nfq.md               QA NFQ findings — 2 blocks, 3 conditionals
+      sparring_brief.md                Synthesis — PIPELINE PASS, Tier 1/2/3 output
   /ProjectConfig
     Architecture.md                    Example module map, service contracts, hard rules
+    Edge_Cases.md                      Example discovered bugs with extracted rules
     Edge_Cases.md                      Example discovered bugs with extracted rules
 
 SPARRING_CONTEXT.md                    Org knowledge template — terminology, decisions, ambient
@@ -393,6 +422,8 @@ SPARRING_CONTEXT.md                    Org knowledge template — terminology, d
                                        Reduces false positives across all personas.
 Persona_Template.md                    Base structure — copy to create new personas
 ```
+
+---
 
 ---
 
@@ -416,6 +447,8 @@ An MVP with no SLO commitments is reasonable. An MVP where the agent uses Node's
 
 ---
 
+---
+
 ## The bias sections
 
 Every persona documents where it over-indexes.
@@ -428,132 +461,135 @@ The bias section tells you when to push back. A spec that passes every persona w
 
 The value is in the friction.
 
+The tasks.md that the pipeline produces at the end is not a generic implementation checklist.
+It is the accumulated resolution of every blocking item made executable — idempotency keys,
+failure counters, timeout values, evaluation harnesses. Tasks that could not exist until the
+spec was good enough to generate them from.
+
 ---
 
-## Use with Superpower
+---
+
+## Relationship to Superpower
 
 [Superpower](https://github.com/SuperpowerCorp/superpower) enforces the coding phase.
-Sparring enforces the specification phase. They are orthogonal. They stack.
+Sparring enforces the specification phase.
 
 ```
 Thin spec
-    ↓  Sparring — spec quality gate (what to build)
+    ↓  Sparring — spec quality gate
 Contract-grade spec
-    ↓  Superpower — process layer (how to build it)
+    ↓  Superpower — process layer
 Code that does what was specified
 ```
 
-**Where Sparring fits in the Superpower pipeline:**
-
-Superpower's workflow: `/brainstorming` → `/writing-plans` → TDD → subagent execution → code review.
-
-Sparring inserts between `/brainstorming` and `/writing-plans`. The brainstorming skill produces a rough design. Sparring interrogates it. Writing-plans receives a hardened spec.
-
-```
-/brainstorming     → rough design or requirements
-    ↓  Sparring    → five personas, human resolves blocking items
-Hardened spec
-    ↓
-/writing-plans     → implementation tasks
-    ↓
-TDD + subagents + code review
-```
-
-**What to do:**
-
-1. Run `/brainstorming` as normal. It produces a design or requirements doc.
-2. Before `/writing-plans`, run the Sparring pipeline on the output.
-   — Paste the Sparring persona files into your session, or use Journey 1 (On-Demand) for a fast targeted review.
-   — Resolve blocking items. Update the spec.
-3. Run `/writing-plans` on the hardened spec.
-4. Continue with the rest of the Superpower pipeline unchanged.
-
-SPARRING_CONTEXT.md and SPARRING_FINDINGS.md work normally — they sit in your project root and are read by personas regardless of whether you are using Superpower.
-
-**Using OpenSpec + Superpower + Sparring together:**
-
-If you use the `superpowers-bridge` schema in OpenSpec, Sparring inserts naturally between `design` and `tasks` inside the same `/opsx:continue` flow. See the OpenSpec section below.
-
+Use Sparring before Superpower.
 Sparring without Superpower still works.
 Superpower without Sparring misses the upstream problem.
 
 ---
 
+---
+
 ## Use with OpenSpec
 
-[OpenSpec](https://github.com/Fission-AI/OpenSpec) manages your spec artifacts and workflow.
-Sparring stress-tests the spec before tasks are written.
-
-Sparring ships an OpenSpec community schema that inserts five persona review artifacts
-between `design` and `tasks`. Each persona is a named step — skippable, resumable,
-part of the change record.
+If you use [OpenSpec](https://github.com/Fission-AI/OpenSpec) for spec-driven development, Sparring ships a community schema that inserts the adversarial review gate directly into your OpenSpec workflow between `design` and `tasks`.
 
 ```
-proposal → specs → design
-  → sparring_pm → sparring_architect → sparring_ui
-  → sparring_qa_functional → sparring_qa_nfq
-  → tasks → apply
+proposal → specs → design → [SPARRING GATE] → tasks → apply
 ```
 
-**Quick install:**
+Install instructions and full usage guide: [`/openspec-schema`](openspec-schema/README.md)
 
 ```bash
-git clone https://github.com/sidgitind/Sparring /tmp/sparring
-cp -r /tmp/sparring/openspec-schema/openspec/schemas/sparring       openspec/schemas/sparring
-openspec schema validate sparring
-```
+# Copy schema into your project
+cp -r openspec-schema/openspec/schemas/sparring /your-project/openspec/schemas/sparring
 
-Then add to `openspec/config.yaml`:
-```yaml
+# Add to openspec/config.yaml
 schema: sparring
-sparring_library_path: /tmp/sparring
+sparring_library_path: /absolute/path/to/Sparring
 ```
 
-Full install guide: [`/openspec-schema/README.md`](openspec-schema/README.md)
+Works alongside [superpowers-bridge](https://github.com/JiangWay/openspec-schemas): Sparring gates the spec, Superpowers executes the build. Use both for the full spec-to-code pipeline.
 
-**How `/opsx:continue` works with Sparring:**
+---
 
-No new command. Each persona appears as the next artifact in the chain.
-`/opsx:continue` pauses after each one. Human resolves blocking items. Continue.
-`tasks` is blocked until all personas pass or are explicitly skipped.
+---
 
-**Skipping a persona in OpenSpec:**
+# Part 2 — Walkthrough: What Happened When We Ran It
 
-```bash
-# Skip UI Designer for a backend-only feature
-echo "SKIPPED: no user-facing states"   > openspec/changes/my-feature/sparring_ui.md
-```
+We ran the full Sparring pipeline via OpenSpec against a real feature spec, using Claude Code.
+This section is the journey — not documentation, a narrative of what the pipeline actually caught,
+what the human decided at each step, and what came out the other side.
 
-The skip is documented in the change folder. `tasks` notes which personas were skipped.
+---
 
-**SPARRING_CONTEXT.md in OpenSpec:**
+## The Feature
 
-Create `SPARRING_CONTEXT.md` in your project root before your first pipeline run.
-Each persona artifact instruction reads it automatically via the `sparring_library_path`.
-The `◎ AMBIENT?` findings from your first run tell you exactly what to add to it.
+AI ticket summary for Flowdesk — support engineers get an AI-generated summary at the top of every ticket to reduce time-to-first-action. A fictional B2B SaaS feature, written under real sprint pressure.
 
-**@Synthesis in OpenSpec:**
+**The feature:** AI ticket summary for Flowdesk — support engineers get an AI-generated summary at the top of every ticket to reduce time-to-first-action. A fictional B2B SaaS feature, written under real sprint pressure, with second-order gaps that no single person would catch alone.
 
-The schema includes a `sparring_brief` artifact between `sparring_qa_nfq` and `tasks`.
-It loads `SPARRING_SYNTHESIS.md` and reads all five persona output files,
-then produces `sparring_brief.md` — the three-tier SPARRING BRIEF in the change folder.
-`tasks` requires it. The full audit trail is in the change folder alongside the spec.
+**The spec entering the pipeline:** [`/Example/Input_Spec.md`](Example/Input_Spec.md) — four ACs. Realistic. Not careless.
 
-**Already using superpowers-bridge?**
+**The pipeline output — five persona reviews, one synthesis:**
 
-Sparring inserts before `tasks`. Superpower runs after. Combined chain:
+| File | Persona | Verdict |
+|---|---|---|
+| [`sparring_pm.md`](Example/sparring-test/openspec/changes/ai-ticket-summary/sparring_pm.md) | Amazon PM | BLOCK — 2 blocks, 3 conditionals |
+| [`sparring_architect.md`](Example/sparring-test/openspec/changes/ai-ticket-summary/sparring_architect.md) | Architect | BLOCK — 3 blocks, 2 conditionals |
+| [`sparring_ui.md`](Example/sparring-test/openspec/changes/ai-ticket-summary/sparring_ui.md) | UI Designer | BLOCK — 3 blocks, 4 conditionals |
+| [`sparring_qa_functional.md`](Example/sparring-test/openspec/changes/ai-ticket-summary/sparring_qa_functional.md) | QA Functional | BLOCK — 4 blocks, 5 conditionals |
+| [`sparring_qa_nfq.md`](Example/sparring-test/openspec/changes/ai-ticket-summary/sparring_qa_nfq.md) | QA NFQ | BLOCK — 2 blocks, 3 conditionals |
+| [`sparring_brief.md`](Example/sparring-test/openspec/changes/ai-ticket-summary/sparring_brief.md) | Synthesis | **PIPELINE PASS** |
 
-```
-proposal → specs → design
-  → sparring_pm → sparring_architect → sparring_ui
-  → sparring_qa_functional → sparring_qa_nfq → sparring_brief
-  → tasks
-  → [Superpower: writing-plans → TDD → code review]
-  → retrospective
-```
+**Start here:** Read `sparring_brief.md` first — 30 seconds, Tier 1 verdict, top findings, what changed.
+Then open individual persona files for the full evidence.
 
-Works alongside [superpowers-bridge](https://github.com/JiangWay/openspec-schemas).
-See [`/openspec-schema/README.md`](openspec-schema/README.md) for combined install instructions.
+**The spec after all 14 blocking items resolved:** [`specs/ai-ticket-summary.md`](Example/sparring-test/openspec/changes/ai-ticket-summary/specs/ai-ticket-summary.md) — nine ACs, failure condition, accuracy rubric, event bus contract, idempotency strategy, frontend loading timeout, feedback error state, and defined failure response shapes for both endpoints.
+
+The example also includes [`/Example/ProjectConfig/`](Example/ProjectConfig/) — the context files personas read before reviewing:
+- `Architecture.md` — module map, tech decisions, service contracts
+- `Edge_Cases.md` — discovered bugs with rules extracted from each
+
+> **Note:** The example ran without a SPARRING_CONTEXT.md — which is why each persona applied `◎ AMBIENT?` tags broadly. Creating this file for your own project reduces false-positive flags on domain knowledge the personas cannot verify independently.
+
+**What the human did between personas:**
+
+The pipeline is not autonomous. After each persona ran, the human read the findings, decided
+on each conditional item (accept / defer / reject), resolved the blocking items in the spec,
+and confirmed before the next persona ran. That human gate is not a formality — it is the
+mechanism. The PM persona blocked on a missing failure condition. The human decided what the
+failure condition should be and wrote it into the spec. The Architect persona then read the
+new spec — and found the PM's addition had no mechanism behind it. The human resolved that too.
+
+Each round's resolution is the next round's raw material. The pipeline cannot produce that
+without a human reading and deciding at every step.
+
+**What happened to design.md:**
+
+The agent read the persona files during design.md creation and preemptively satisfied several
+non-negotiables — an 8s LLM timeout, a state machine for generation status, a debounce strategy
+for event-triggered regeneration. These never became blocking items because the gaps were closed
+before the personas ran. The design.md in the example shows what an agent produces when it has
+read the Architect and NFQ personas before writing.
+
+**What tasks.md shows:**
+
+[`tasks.md`](Example/sparring-test/openspec/changes/ai-ticket-summary/tasks.md) was generated
+after the pipeline cleared. Read it alongside `sparring_brief.md` — every non-trivial task
+traces to a persona finding. The idempotency key, the failure counter, the unified failure
+display rule, the evaluation harness — all visible in the spec before the build started.
+Two tasks are explicitly flagged as blocked on open decisions the human had not yet made.
+That is the audit trail working. showing where multiple personas touched the same mechanism from different angles.
+
+The example also includes [`/Example/ProjectConfig/`](Example/ProjectConfig/) — the project context files every persona reads before reviewing your spec:
+- `Architecture.md` — the Flowdesk module map, tech decisions, and service contracts.
+- `Edge_Cases.md` — three real bugs from the Flowdesk project, each with the rule extracted.
+
+Note: the Flowdesk example reflects the pre-v1.2 output format — persona reviews only, no SPARRING BRIEF. The three-tier output and SPARRING_CONTEXT.md were introduced in v1.2. The example remains valid as a demonstration of the persona review layer. A v1.2 example showing the full pipeline including @Synthesis is in progress.
+
+---
 
 ---
 
