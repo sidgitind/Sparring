@@ -1,10 +1,61 @@
 # Sparring
 
-A library of AI personas that review your spec before your agent builds from it.
+Five AI personas that interrogate a spec before your agent builds from it — so the gaps get caught on the page, not in production.
 
-Your agent builds exactly what the spec says.  
-If the spec is incomplete, the agent builds something incomplete — correctly.  
-Sparring catches the gaps before the build starts.
+## Already using one of these? Here's where Sparring fits.
+
+| You're on... | Sparring gives you |
+|---|---|
+| **OpenSpec** | Five review artifacts, inserted between `design` and `tasks`. No new tool, no new command — `/opsx:continue` just runs one more step. |
+| **Superpower** | One gate between `/brainstorming` and `/writing-plans`. Hardens the design before it becomes a plan. |
+| **None of the above** | Works standalone, in any agent that reads files — Claude Code, Cursor, Windsurf, or a plain chat session. |
+
+**If you're running gstack's full pipeline:** Sparring doesn't plug directly into
+it today — it's an OpenSpec schema, and gstack is its own self-contained system,
+so there's no install step to point to here. Worth knowing anyway: gstack's
+CEO and Eng Manager reviews cover similar ground to Sparring's PM and Architect
+personas, so you're likely already covered there. What gstack's planning chain
+doesn't appear to check is testability and non-functional rigor *before* code
+exists — its `/qa` skill verifies a real, built app in a browser, which is a
+different moment than checking whether an acceptance criterion can produce a
+pass/fail verdict on paper. If that gap matters to you, the QA Functional and
+QA NFQ personas are the two worth reading even without the rest of the pipeline:
+[`Persona/QA_Persona/`](Persona/QA_Persona/).
+
+## See it work
+
+```
+Spec: 4 lines. "AI summary at the top of every support ticket."
+
+Round 1 — PM          blocks: missing success metric, missing failure condition
+Round 2 — Architect    blocks: a kill-switch with no mechanism behind it
+                        (the fix PM just wrote created this gap)
+Round 3 — UI Designer  blocks: dead-end error state, no recovery path
+Round 4 — QA           finds: the spec's own first line now contradicts
+                        what round 2 just built
+Round 5 — QA NFQ       two small, mechanical gaps left. Pipeline passes.
+
+14 findings. 5 rounds. Spec: 4 lines in → 9 lines out, plus a hardened design.
+```
+
+Every line above is from a real run against a live OpenSpec pipeline, not a constructed example. Full transcript, every persona's actual output: [`Example/`](Example/)
+
+## Install — 2 minutes
+
+```bash
+git clone https://github.com/sidgitind/Sparring /tmp/sparring
+cp -r /tmp/sparring/openspec-schema/openspec/schemas/sparring openspec/schemas/sparring
+openspec schema validate sparring
+```
+
+Open `openspec/config.yaml` — replace the existing `schema:` line, don't add a second one:
+
+```yaml
+schema: sparring
+sparring_library_path: /tmp/sparring
+```
+
+Using Superpower instead? or no spec tool at all?  [`/openspec-schema/README.md`](openspec-schema/README.md) has Superpower and standalone-agent instructions too.
 
 ---
 
@@ -14,30 +65,16 @@ What Sparring is, how it works, what it is not, and how to run it on your own sp
 
 ## The problem it solves
 
-The spec is the product manager's artifact. And product management is not a universal discipline. It is shaped by company culture, by what the organization measures, by the specific product being built, and by the individual PM's experience and blind spots. Two PMs writing a spec for the same feature will produce different documents — not because one is wrong, but because each brings a different set of lenses and leaves different gaps.
+A competent PM wrote a four-AC spec for an AI ticket summary feature in Flowdesk, a B2B SaaS tool.
+It entered the Sparring pipeline. Five personas reviewed it sequentially. 14 blocking items were
+raised and resolved across 5 rounds. The spec exited with 9 ACs.
 
-This is where spec-level hallucination lives - unknown assumptions not missing facts, unasked questions not wrong answers.
+The gaps were not careless omissions. They were what one person cannot hold simultaneously —
+the PM lens, the architecture lens, the UX lens, the QA lens — while also managing a sprint
+and writing the next three specs in the backlog.
 
-The Sparring library is built to surface them.
-
-In a non-AI world, an architect building the high level design based on the spec might catch the unsaid assumptions. An expert reviewing the spec to build the Low level design flags might flag the missing Non functional asks. A human developer will sometimes catch a spec gap during mid-implementation, the act of writing code makes the missing piece visible. They flag it and spec if fixed.
-
-An AI agent does not do this. It builds what the spec says.
-
-It reads "generates a summary" and it generates a summary — confidently,
-completely, and exactly as specified, including everything the spec forgot to specify. No pause at
-the ambiguous line. No comment asking what happens if the service times out. The gap that a human
-might have stumbled on gets built, tested against its own flawed premise, and shipped — faster than
-before, with less visible struggle along the way. The spec's blind spots don't get caught later.
-They get executed more efficiently.
-
-This is what Sparring interrogates before any of that happens: five review lenses, run sequentially,
-against the spec and the design, before a task list is generated and before an agent starts building.
-Each lens has one job and non-negotiables it will not pass regardless of what else looks fine.
-The human resolves what gets flagged. The agent does not touch the spec. Nothing gets built until
-the gate clears.
-
-<img width="1800" height="1440" alt="sparring_pipeline" src="https://github.com/user-attachments/assets/98466eb4-bdcc-4f2d-90b4-5a83a514260f" />
+Sparring runs those lenses sequentially. Each persona has one job. None of them build anything.
+The human resolves. The spec improves. The tasks reflect it.
 
 ---
 
@@ -120,8 +157,6 @@ What it is not:
 
 ---
 
----
-
 ## Output modes
 
 Every persona supports two output modes. Set this in the PROJECT CONFIG block inside each persona file, or state it explicitly when you invoke the persona.
@@ -167,8 +202,6 @@ Example invocation: "@Synthesis — produce the SPARRING BRIEF from today's pipe
 | ⚡ NEW | Not in SPARRING_CONTEXT.md. Likely a real gap. | Act on it. |
 | ◎ AMBIENT? | May be org knowledge — persona could not confirm. | Add to SPARRING_CONTEXT.md if it IS org knowledge. Treat as a real gap if it is NOT. |
 | ~ KNOWN | Already in SPARRING_FINDINGS.md or flagged in the spec. | Not new — surfaces for completeness only. |
-
----
 
 ---
 
@@ -467,6 +500,7 @@ Sparring without Superpower still works.
 Superpower without Sparring misses the upstream problem.
 
 ---
+
 ## Use with OpenSpec
 
 If you use [OpenSpec](https://github.com/Fission-AI/OpenSpec) for spec-driven development, Sparring ships a schema that inserts five separate persona artifacts — plus a synthesis step — between `design` and `tasks`:
@@ -564,6 +598,9 @@ The example also includes [`/Example/ProjectConfig/`](Example/ProjectConfig/) �
 - `Architecture.md` — the Flowdesk module map, tech decisions, and service contracts.
 - `Edge_Cases.md` — three real bugs from the Flowdesk project, each with the rule extracted.
 
+Note: the Flowdesk example reflects the pre-v1.2 output format — persona reviews only, no SPARRING BRIEF. The three-tier output and SPARRING_CONTEXT.md were introduced in v1.2. The example remains valid as a demonstration of the persona review layer. A v1.2 example showing the full pipeline including @Synthesis is in progress.
+
+---
 
 ---
 
